@@ -52,7 +52,7 @@ Resources:
   NodeStuffLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: index.lambda_handler
+      Handler: index.handler
       Runtime: nodejs14.x
       CodeUri: ./lambdas/NodeStuff
       Description: Does stuff in Node
@@ -61,7 +61,7 @@ Resources:
   PythonStuffLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: index.lambda_handler
+      Handler: index.handler
       Runtime: python3.8
       CodeUri: ./lambdas/PythonStuff
       Description: Does stuff in Python

@@ -3,7 +3,7 @@
 
 import json
 
-def lambda_handler(event, context):
+def handler(event, context):
    response = {
        "pythonProperty": "Added a new property via the Python Lambda"
    }
