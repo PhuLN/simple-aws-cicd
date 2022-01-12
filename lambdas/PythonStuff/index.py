@@ -4,10 +4,9 @@
 import json
 
 def handler(event, context):
-   response = {
-       "pythonProperty": "Added a new property via the Python Lambda"
-   }
-
-   event['input'] = response;
+   event['input'] = {
+     **event['input'],
+     "pythonProperty": "Added a new property via the Python Lambda"
+   };
    
    return event['input']
