@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Quick example generating 2 Lambda functions with different runtime, a step function which uses the aforementioned Lambdas and an API gateway which calls said step function
+
+Parameters:
+  Name:
+    Type: String
+    Description: The name of the API to create, also used as the stack name.
+
+Resources:
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Ref Name
+      StageName: live
+      OpenApiVersion: 3.0.1
+      DefinitionBody:
+        openapi: 3.0.1
+        info:
+          title: CICD
+          description: CICD Testing
+          contact:
+            email: randomfakeemailorsomething@gmail.com
+          license:
+            name: Apache 2.0
+            url: http://www.apache.org/licenses/LICENSE-2.0.html
+          version: 1.0.0
+        paths:
+          /execute:
+            post:
+              consumes:
+                - "application/json"
+              produces:
+                - "application/json"
+              responses:
+                "200":
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/Empty"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                # credentials: "arn:aws:iam::326637564659:role/APIGatewayToStepFunctions"
+                httpMethod: "POST"
+                uri: "arn:aws:apigateway:us-east-1:states:action/StartSyncExecution"
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                requestTemplates:
+                  application/json:
+                    "#set($body= $input.json('$'))\n#set($inputRoot='{ \"\
+                    data\" :'+$body+',\"apiInfo\":{\"requestId\" :\"'+ $context.requestId+'\"\
+                    , \"apiKey\":\"'+ $context.identity.apiKey+'\"}}')\n#set($apiData=$util.escapeJavaScript($inputRoot))\n\
+                    #set($apiData=$apiData.replaceAll(\"\\\\'\",\"'\"))\n{\n  \"input\" :\"\
+                    $apiData\",\n  \"stateMachineArn\": \"arn:aws:states:us-east-1:326637564659:stateMachine:SendChatMessageExpress\"\
+                    \  \n}"
+                passthroughBehavior: "when_no_templates"
+                type: "aws"
+
+  NodeStuffLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: nodestuff.lambda_handler
+      Runtime: nodejs14.x
+      CodeUri: ./lambdas/NodeStuff
+      Description: Does stuff in Node
+      AutoPublishAlias: live
+
+  PythonStuffLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: pythonstuff.lambda_handler
+      Runtime: python3.8
+      CodeUri: ./lambdas/PythonStuff
+      Description: Does stuff in Python
+      AutoPublishAlias: live
+
+  StateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Sub statemachine-${AWS::StackName}
+      DefinitionUri: sf-def.yaml
+      DefinitionSubstitutions:
+        NodeStuffLambdaFunction: !Ref NodeStuffLambdaFunction
+        PythonStuffLambdaFunction: !Ref PythonStuffLambdaFunction
+      Role: !GetAtt StateMachineRole.Arn
+
+  StateMachineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub statemachine-role-${AWS::StackName}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: states.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  InvokeFunctionPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub statemachine-invoke-function-policy-${AWS::StackName}
+      Roles:
+        - !Ref StateMachineRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+            Resource: "*"

@@ -1,0 +1,22 @@
+Comment: StepFunction
+StartAt: NodeStuff
+States:
+  NodeStuff:
+    Type: Task
+    Resource: "arn:aws:states:::lambda:invoke"
+    Parameters:
+      FunctionName: ${NodeStuffLambdaFunction}
+      Payload:
+        input.$: $
+    Next: PythonStuff
+  PythonStuff:
+    Type: Task
+    Resource: "arn:aws:states:::lambda:invoke"
+    Parameters:
+      FunctionName: ${PythonStuffLambdaFunction}
+      Payload:
+        input.$: $.Payload
+    Next: WrappingUp
+  WrappingUp:
+    Type: Pass
+    End: true
