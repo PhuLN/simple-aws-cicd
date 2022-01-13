@@ -45,7 +45,7 @@ Resources:
                     data\" :'+$body+',\"apiInfo\":{\"requestId\" :\"'+ $context.requestId+'\"\
                     , \"apiKey\":\"'+ $context.identity.apiKey+'\"}}')\n#set($apiData=$util.escapeJavaScript($inputRoot))\n\
                     #set($apiData=$apiData.replaceAll(\"\\\\'\",\"'\"))\n{\n  \"input\" :\"\
-                    $apiData\",\n  \"stateMachineArn\": \"${ !GetAtt StateMachine.Arn }\"\
+                    $apiData\",\n  \"stateMachineArn\": \"${ StateMachine.Arn }\"\
                     \  \n}"
 
                 passthroughBehavior: "when_no_templates"
