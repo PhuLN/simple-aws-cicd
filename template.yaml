@@ -41,19 +41,13 @@ Resources:
                     statusCode: "200"
                 requestTemplates:
                   application/json:
-                    "#set($body= $input.json('$'))\n#set($inputRoot='{ \"\
-                    data\" :'+$body+',\"apiInfo\":{\"requestId\" :\"'+ $context.requestId+'\"\
-                    , \"apiKey\":\"'+ $context.identity.apiKey+'\"}}')\n#set($apiData=$util.escapeJavaScript($inputRoot))\n\
-                    #set($apiData=$apiData.replaceAll(\"\\\\'\",\"'\"))\n{\n  \"input\" :\"\
-                    $apiData\",\n  \"stateMachineArn\": \"{{ !GetAtt StateMachine.Arn }}\"\
-                    \  \n}"
-                    # application/json:
-                    #   "#set($body= $input.json('$'))\n#set($inputRoot='{ \"\
-                    #   data\" :'+$body+',\"apiInfo\":{\"requestId\" :\"'+ $context.requestId+'\"\
-                    #   , \"apiKey\":\"'+ $context.identity.apiKey+'\"}}')\n#set($apiData=$util.escapeJavaScript($inputRoot))\n\
-                    #   #set($apiData=$apiData.replaceAll(\"\\\\'\",\"'\"))\n{\n  \"input\" :\"\
-                    #   $apiData\",\n  \"stateMachineArn\": \"arn:aws:states:us-east-1:326637564659:stateMachine:statemachine-master--us-east-1\"\
-                    #   \  \n}"
+                    application/json:
+                      "#set($body= $input.json('$'))\n#set($inputRoot='{ \"\
+                      data\" :'+$body+',\"apiInfo\":{\"requestId\" :\"'+ $context.requestId+'\"\
+                      , \"apiKey\":\"'+ $context.identity.apiKey+'\"}}')\n#set($apiData=$util.escapeJavaScript($inputRoot))\n\
+                      #set($apiData=$apiData.replaceAll(\"\\\\'\",\"'\"))\n{\n  \"input\" :\"\
+                      $apiData\",\n  \"stateMachineArn\": \"arn:aws:states:us-east-1:326637564659:stateMachine:statemachine-master--us-east-1\"\
+                      \  \n}"
 
                 passthroughBehavior: "when_no_templates"
                 type: "aws"
