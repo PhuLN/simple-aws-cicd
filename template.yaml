@@ -20,7 +20,7 @@ Resources:
           title: CICD
           description: CICD Testing
           contact:
-            email: randomfakeemailorsomething@gmail.com
+            email: gfsd@gmail.com
           license:
             name: Apache 2.0
             url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -35,7 +35,7 @@ Resources:
                 # credentials: "arn:aws:iam::326637564659:role/APIGatewayToStepFunctions"
                 credentials: !GetAtt StateMachineRole.Arn
                 httpMethod: "POST"
-                uri: "arn:aws:apigateway:us-east-1:states:action/StartSyncExecution"
+                uri: "arn:aws:apigateway:us-east-1:states:action/StartExecution"
                 responses:
                   default:
                     statusCode: "200"
